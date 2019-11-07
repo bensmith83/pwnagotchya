@@ -66,6 +66,8 @@ def FuzzPwnFriend(valid):
     }
     return json.dumps(friend_req)
 
+#TODO: implement these different elements and see what happens.
+#      maybe look to see if they're implemented or not first
 #    IDWhisperPayload      layers.Dot11InformationElementID = 222
 #    IDWhisperCompression  layers.Dot11InformationElementID = 223
 #    IDWhisperIdentity     layers.Dot11InformationElementID = 224
