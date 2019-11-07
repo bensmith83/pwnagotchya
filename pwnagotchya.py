@@ -8,66 +8,83 @@ def main():
     # set command line options
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--iface", dest="iface", help="monitor mode wifi interface to broadcast on", default="en0")
+    parser.add_argument("-t", "--test", dest="test", help="send test friend from testfriend.json", action='store_true')
     args = parser.parse_args()
     conf.iface = args.iface
-    while 1:
-        time.sleep(1) #send one per second?
 
-        data = FuzzPwnFriend(GLOBAL_VALID)
-        sendLength = len(data)
+    data_arr = []
 
-        # break data into chunks each packet can handle
-        data_arr = []
-        if sendLength > TAG_LEN_MAX:
-            chop = ChopData(data, TAG_LEN_MAX)
-            for piece in chop:
-                data_arr.append(piece)
-        else:
-            data_arr.append(piece)
-        SendFriend(data_arr)
+    if args.test:
+        path = './testfriend.json'
+        with open(path) as json_file:
+            data = json.load(json_file)
+            sendLength = len(data)
+
+            # break data into chunks each packet can handle
+            if sendLength > TAG_LEN_MAX:
+                chop = ChopData(data, TAG_LEN_MAX)
+                for piece in chop:
+                    data_arr.append(piece)
+            else:
+                data_arr.append(data)
+            while 1:
+                SendFriend(data_arr)
+
+    else:
+        while 1:
+            time.sleep(1) #send one per second?
+
+            data = FuzzPwnFriend(GLOBAL_VALID)
+            sendLength = len(data)
+
+            # break data into chunks each packet can handle
+
+            if sendLength > TAG_LEN_MAX:
+                chop = ChopData(data, TAG_LEN_MAX)
+                for piece in chop:
+                    data_arr.append(piece)
+            else:
+                data_arr.append(data)
+            SendFriend(data_arr)
 
 #TODO: move globals somewhere configurable
 GLOBAL_VALID=True
 
 def FuzzPwnFriend(valid):
-    policy = {
-        "advertise": FuzzAdvertise(GLOBAL_VALID),
-        "ap_ttl": FuzzApTtl(GLOBAL_VALID),
-        "associate": FuzzAssociate(GLOBAL_VALID),
-        "bond_encounters_factor": FuzzBondEncountersFactor(GLOBAL_VALID),
-        "bored_num_epochs": FuzzBoredNumEpochs(GLOBAL_VALID),
-        "channels": FuzzChannels(GLOBAL_VALID),
-        "deauth": FuzzDeauth(GLOBAL_VALID),
-        "excited_num_epochs": FuzzExcitedNumEpochs(GLOBAL_VALID),
-        "hop_recon_time": FuzzHopReconTime(GLOBAL_VALID),
-        "max_inactive_scale": FuzzMaxInactiveScale(GLOBAL_VALID),
-        "max_interactions": FuzzMaxInteractions(GLOBAL_VALID),
-        "max_misses_for_recon": FuzzMaxMissesForRecon(GLOBAL_VALID),
-        "min_recon_time": FuzzMinReconTime(GLOBAL_VALID),
-        "min_rssi": FuzzMinReconTime(GLOBAL_VALID),
-        "recon_inactive_multiplier": FuzzReconInactiveMultiplier(GLOBAL_VALID),
-        "recon_time": FuzzReconTime(GLOBAL_VALID),
-        "sad_num_epochs": FuzzSadNumEpochs(GLOBAL_VALID),
-        "sta_ttl": FuzzStaTtl(GLOBAL_VALID)
-    }
-    friend_req = {
-        "epoch": FuzzEpoch(GLOBAL_VALID),
-        "face":FuzzFace(GLOBAL_VALID),
-        "grid_version":FuzzGridVersion(GLOBAL_VALID),
-        "identity":FuzzIdentity(GLOBAL_VALID),
-        "name":FuzzName(GLOBAL_VALID),
-        "policy":policy,
-        "pwnd_run":FuzzPwndRun(GLOBAL_VALID),
-        "pwnd_tot":FuzzPwndTot(GLOBAL_VALID),
-        "session_id":FuzzSessionId(GLOBAL_VALID),
-        "timestamp":FuzzTimestamp(GLOBAL_VALID),
-        "uptime":FuzzUptime(GLOBAL_VALID),
-        "version":FuzzVersion(GLOBAL_VALID)
-    }
+    policy = {}
+    policy.update({"advertise": FuzzAdvertise(GLOBAL_VALID)})
+    policy.update({"ap_ttl": FuzzApTtl(GLOBAL_VALID)})
+    policy.update({"associate": FuzzAssociate(GLOBAL_VALID)})
+    policy.update({"bond_encounters_factor": FuzzBondEncountersFactor(GLOBAL_VALID)})
+    policy.update({"bored_num_epochs": FuzzBoredNumEpochs(GLOBAL_VALID)})
+    policy.update({"channels": FuzzChannels(GLOBAL_VALID)})
+    policy.update({"deauth": FuzzDeauth(GLOBAL_VALID)})
+    policy.update({"excited_num_epochs": FuzzExcitedNumEpochs(GLOBAL_VALID)})
+    policy.update({"hop_recon_time": FuzzHopReconTime(GLOBAL_VALID)})
+    policy.update({"max_inactive_scale": FuzzMaxInactiveScale(GLOBAL_VALID)})
+    policy.update({"max_interactions": FuzzMaxInteractions(GLOBAL_VALID)})
+    policy.update({"max_misses_for_recon": FuzzMaxMissesForRecon(GLOBAL_VALID)})
+    policy.update({"min_recon_time": FuzzMinReconTime(GLOBAL_VALID)})
+    policy.update({"min_rssi": FuzzMinReconTime(GLOBAL_VALID)})
+    policy.update({"recon_inactive_multiplier": FuzzReconInactiveMultiplier(GLOBAL_VALID)})
+    policy.update({"recon_time": FuzzReconTime(GLOBAL_VALID)})
+    policy.update({"sad_num_epochs": FuzzSadNumEpochs(GLOBAL_VALID)})
+    policy.update({"sta_ttl": FuzzStaTtl(GLOBAL_VALID)})
+    friend_req = {}
+    friend_req.update({"epoch": FuzzEpoch(GLOBAL_VALID)})
+    friend_req.update({"face":FuzzFace(GLOBAL_VALID)})
+    friend_req.update({"grid_version":FuzzGridVersion(GLOBAL_VALID)})
+    friend_req.update({"identity":FuzzIdentity(GLOBAL_VALID)})
+    friend_req.update({"name":FuzzName(GLOBAL_VALID)})
+    friend_req.update({"policy":policy})
+    friend_req.update({"pwnd_run":FuzzPwndRun(GLOBAL_VALID)})
+    friend_req.update({"pwnd_tot":FuzzPwndTot(GLOBAL_VALID)})
+    friend_req.update({"session_id":FuzzSessionId(GLOBAL_VALID)})
+    friend_req.update({"timestamp":FuzzTimestamp(GLOBAL_VALID)})
+    friend_req.update({"uptime":FuzzUptime(GLOBAL_VALID)})
+    friend_req.update({"version":FuzzVersion(GLOBAL_VALID)})
     return json.dumps(friend_req)
 
-#TODO: implement these different elements and see what happens.
-#      maybe look to see if they're implemented or not first
 #    IDWhisperPayload      layers.Dot11InformationElementID = 222
 #    IDWhisperCompression  layers.Dot11InformationElementID = 223
 #    IDWhisperIdentity     layers.Dot11InformationElementID = 224
@@ -105,7 +122,7 @@ def FuzzAdvertise(valid):
     if (valid):
         return True
     else:
-        GetRandBool()
+        return GetRandBool()
         # or GetRandString(0,RAND_SHORT_STRING_LEN)
 
 def FuzzApTtl(valid):
@@ -114,9 +131,9 @@ def FuzzApTtl(valid):
     #value
     #420,
     if (valid):
-        GetRandInt(0,600)
+        return GetRandInt(0,600)
     else:
-        GetRandInt(0,99999999)
+        return GetRandInt(0,99999999)
 
 def FuzzAssociate(valid):
     #name
@@ -126,7 +143,7 @@ def FuzzAssociate(valid):
     if (valid):
         return True
     else:
-        GetRandBool()
+        return GetRandBool()
         # or GetRandString(0,RAND_SHORT_STRING_LEN)
 
 def FuzzBondEncountersFactor(valid):
@@ -135,9 +152,9 @@ def FuzzBondEncountersFactor(valid):
     #value
     #20000,
     if (valid):
-        GetRandInt(10000,60000)
+        return GetRandInt(10000,60000)
     else:
-        GetRandInt(0,99999999)
+        return GetRandInt(0,99999999)
 
 def FuzzBoredNumEpochs(valid):
     #name
@@ -145,9 +162,9 @@ def FuzzBoredNumEpochs(valid):
     #value
     #8,
     if (valid):
-        GetRandInt(0,100)
+        return GetRandInt(0,100)
     else:
-        GetRandInt(0,99999999)
+        return GetRandInt(0,99999999)
 
 def FuzzChannels(valid):
     #name
@@ -155,9 +172,9 @@ def FuzzChannels(valid):
     #value
     #[1, 2, 3, 5, 8, 9, 10],
     if valid:
-        GetRandChannelSet(valid=True)
+        return GetRandChannelSet(valid=True)
     else:
-        GetRandChannelSet(valid=False)
+        return GetRandChannelSet(valid=False)
 
 def FuzzDeauth(valid):
     #name
@@ -167,7 +184,7 @@ def FuzzDeauth(valid):
     if (valid):
         return True
     else:
-        GetRandBool()
+        return GetRandBool()
         # or GetRandString(0,RAND_SHORT_STRING_LEN)
 
 def FuzzExcitedNumEpochs(valid):
@@ -176,9 +193,9 @@ def FuzzExcitedNumEpochs(valid):
     #value
     #25,
     if (valid):
-        GetRandInt(0,200)
+        return GetRandInt(0,200)
     else:
-        GetRandInt(0,99999999)
+        return GetRandInt(0,99999999)
 
 def FuzzHopReconTime(valid):
     #name
@@ -186,9 +203,9 @@ def FuzzHopReconTime(valid):
     #value
     #26,
     if (valid):
-        GetRandInt(0,100)
+        return GetRandInt(0,100)
     else:
-        GetRandInt(0,99999999)
+        return GetRandInt(0,99999999)
 
 def FuzzMaxInactiveScale(valid):
     #name
@@ -196,9 +213,9 @@ def FuzzMaxInactiveScale(valid):
     #value
     #10,
     if (valid):
-        GetRandInt(0,100)
+        return GetRandInt(0,100)
     else:
-        GetRandInt(0,99999999)
+        return GetRandInt(0,99999999)
 
 def FuzzMaxInteractions(valid):
     #name
@@ -206,9 +223,9 @@ def FuzzMaxInteractions(valid):
     #value
     #23,
     if (valid):
-        GetRandInt(0,100)
+        return GetRandInt(0,100)
     else:
-        GetRandInt(0,99999999)
+        return GetRandInt(0,99999999)
 
 def FuzzMaxMissesForRecon(valid):
     #name
@@ -216,9 +233,9 @@ def FuzzMaxMissesForRecon(valid):
     #value
     #4,
     if (valid):
-        GetRandInt(0,100)
+        return GetRandInt(0,100)
     else:
-        GetRandInt(0,99999999)
+        return GetRandInt(0,99999999)
 
 def FuzzMinReconTime(valid):
     #name
@@ -226,9 +243,9 @@ def FuzzMinReconTime(valid):
     #value
     #21,
     if (valid):
-        GetRandInt(0,100)
+        return GetRandInt(0,100)
     else:
-        GetRandInt(0,99999999)
+        return GetRandInt(0,99999999)
 
 def FuzzMinRssi(valid):
     #name
@@ -236,9 +253,9 @@ def FuzzMinRssi(valid):
     #value
     #-68,
     if (valid):
-        GetRandInt(-200, 0)
+        return GetRandInt(-200, 0)
     else:
-        GetRandInt(-99999999,99999999)
+        return GetRandInt(-99999999,99999999)
 
 def FuzzReconInactiveMultiplier(valid):
     #name
@@ -246,9 +263,9 @@ def FuzzReconInactiveMultiplier(valid):
     #value
     #1,
     if (valid):
-        GetRandInt(0,100)
+        return GetRandInt(0,100)
     else:
-        GetRandInt(0,99999999)
+        return GetRandInt(0,99999999)
 
 def FuzzReconTime(valid):
     #name
@@ -256,9 +273,9 @@ def FuzzReconTime(valid):
     #value
     #30,
     if (valid):
-        GetRandInt(0,100)
+        return GetRandInt(0,100)
     else:
-        GetRandInt(0,99999999)
+        return GetRandInt(0,99999999)
 
 def FuzzSadNumEpochs(valid):
     #name
@@ -266,9 +283,9 @@ def FuzzSadNumEpochs(valid):
     #value
     #22,
     if (valid):
-        GetRandInt(0,100)
+        return GetRandInt(0,100)
     else:
-        GetRandInt(0,99999999)
+        return GetRandInt(0,99999999)
 
 def FuzzStaTtl(valid):
     #name
@@ -276,9 +293,9 @@ def FuzzStaTtl(valid):
     #value
     #163}
     if (valid):
-        GetRandInt(0,600)
+        return GetRandInt(0,600)
     else:
-        GetRandInt(0,99999999)
+        return GetRandInt(0,99999999)
 
 def FuzzEpoch(valid):
     #name
@@ -286,9 +303,9 @@ def FuzzEpoch(valid):
     #value
     #4,
     if (valid):
-        GetRandInt(0,100)
+        return GetRandInt(0,100)
     else:
-        GetRandInt(0,99999999)
+        return GetRandInt(0,99999999)
 
 def FuzzFace(valid):
     #name
@@ -296,9 +313,9 @@ def FuzzFace(valid):
     #value
     #"( â_â)",
     if valid:
-        GetRandFace()
+        return GetRandFace()
     else:
-        GetRandString(0, RAND_SHORT_STRING_LEN)
+        return GetRandString(0, RAND_SHORT_STRING_LEN)
 
 def FuzzGridVersion(valid):
     #name
@@ -306,9 +323,9 @@ def FuzzGridVersion(valid):
     #value
     #"1.10.1",
     if valid:
-        GetRandVerString()
+        return GetRandVerString()
     else:
-        GetRandString(0, RAND_SHORT_STRING_LEN)
+        return GetRandString(0, RAND_SHORT_STRING_LEN)
 
 def FuzzIdentity(valid):
     #name
@@ -316,9 +333,9 @@ def FuzzIdentity(valid):
     #value
     #"05c310097605f4587c2829748a683eb147453da121d4ae8910c884f108e18a0e",
     if valid:
-        GetRandString(64, 64)
+        return GetRandString(64, 64)
     else:
-        GetRandString(4, RAND_LONG_STRING_LEN)
+        return GetRandString(4, RAND_LONG_STRING_LEN)
 
 def FuzzName(valid):
     #name
@@ -326,10 +343,10 @@ def FuzzName(valid):
     #value
     #"marko",
     if valid:
-        GetRandDictString(4, RAND_SHORT_STRING_LEN)
+        return GetRandDictString(4, RAND_SHORT_STRING_LEN)
         #GetRandString(4, RAND_SHORT_STRING_LEN)
     else:
-        GetRandString(4, RAND_LONG_STRING_LEN)
+        return GetRandString(4, RAND_LONG_STRING_LEN)
 
 def FuzzPwndRun(valid):
     #name
@@ -337,9 +354,9 @@ def FuzzPwndRun(valid):
     #value
     #3,
     if (valid):
-        GetRandInt(0,100)
+        return GetRandInt(0,100)
     else:
-        GetRandInt(0,99999999)
+        return GetRandInt(0,99999999)
 
 def FuzzPwndTot(valid):
     #name
@@ -347,9 +364,9 @@ def FuzzPwndTot(valid):
     #value
     #54,
     if (valid):
-        GetRandInt(0,1000)
+        return GetRandInt(0,1000)
     else:
-        GetRandInt(0,99999999)
+        return GetRandInt(0,99999999)
 
 def FuzzSessionId(valid):
     #name
@@ -357,9 +374,9 @@ def FuzzSessionId(valid):
     #value
     #"be:2f:20:07:d0:7a",
     if valid:
-        GetRandMACString()
+        return GetRandMACString()
     else:
-        GetRandString(0, RAND_SHORT_STRING_LEN)
+        return GetRandString(0, RAND_SHORT_STRING_LEN)
 
 def FuzzTimestamp(valid):
     #name
@@ -367,9 +384,9 @@ def FuzzTimestamp(valid):
     #value
     #1562850051,
     if valid:
-        GetTimestamp(valid=True)
+        return GetTimestamp(valid=True)
     else:
-        GetTimestamp(valid=false)
+        return GetTimestamp(valid=false)
 
 
 def FuzzUptime(valid):
@@ -378,9 +395,9 @@ def FuzzUptime(valid):
     #value
     #2606,
     if valid:
-        GetRandInt(0,10000)
+        return GetRandInt(0,10000)
     else:
-        GetRandInt(0,99999999)
+        return GetRandInt(0,99999999)
 
 def FuzzVersion(valid):
     #name
@@ -388,9 +405,9 @@ def FuzzVersion(valid):
     #value
     #"1.1.1"
     if valid:
-        GetRandVerString()
+        return GetRandVerString()
     else:
-        GetRandString(0, RAND_SHORT_STRING_LEN)
+        return GetRandString(0, RAND_SHORT_STRING_LEN)
 
 
 import random
