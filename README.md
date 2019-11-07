@@ -7,3 +7,5 @@ Simple tool for fuzzing the pwnagotchi "friend" protocol
 
 ## TODO
 Lots of todos in the code. I'll forget to list them here at some point.
+- [x] working PoC
+- [ ] polishing
