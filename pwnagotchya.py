@@ -6,6 +6,10 @@ from scapy.all import *
 
 TAG_LEN_MAX = 255
 
+#RAND_SHORT_STRING_LEN = 255
+RAND_SHORT_STRING_LEN = 64
+RAND_LONG_STRING_LEN = 1024
+
 def main():
     # set command line options
     parser = argparse.ArgumentParser()
@@ -13,11 +17,13 @@ def main():
     parser.add_argument("-t", "--test", dest="test", help="send test friend from testfriend.json", action='store_true')
     parser.add_argument("-d", "--debug", dest="debug", help="de bugz are everywhere!", action='store_true')
     parser.add_argument("-f", "--fuzz", dest="fuzz", help="tests should not use valid data. WARNING: currently produces waaaay too long data and will error out.", action='store_true', default=False)
+    parser.add_argument("-s", "--sleep", dest="sleep", help="seconds to sleep between packet send", default=1, type=int)
     args = parser.parse_args()
     conf.iface = args.iface
     debug = args.debug
     fuzz = args.fuzz
     valid = not fuzz
+    sleep = args.sleep
 
     data_arr = []
 
@@ -35,13 +41,14 @@ def main():
             else:
                 data_arr.append(data)
             while 1:
+                time.sleep(sleep)
                 if debug:
                     print_data_sizes(data_arr)
                 SendFriend(data_arr)
 
     else:
         while 1:
-            time.sleep(1) #send one per second?
+            time.sleep(sleep) #send one per second?
 
             if data_arr:
                 data_arr.clear()
@@ -123,9 +130,6 @@ def print_data_sizes(data_arr):
 
 #TODO: move helper functions to a library
 
-RAND_SHORT_STRING_LEN = 255
-RAND_LONG_STRING_LEN = 1024
-
 #TODO: some fuzz functions determine validity and some Get functions do.
 
 def FuzzAdvertise(valid):
@@ -147,7 +151,7 @@ def FuzzApTtl(valid):
     if (valid):
         return GetRandInt(0,600)
     else:
-        return GetRandInt(0,99999999)
+        return GetRandInt(0,999999)
 
 def FuzzAssociate(valid):
     #name
@@ -349,7 +353,7 @@ def FuzzIdentity(valid):
     if valid:
         return GetRandString(64, 64)
     else:
-        return GetRandString(4, RAND_LONG_STRING_LEN)
+        return GetRandString(4, RAND_SHORT_STRING_LEN) #RAND_LONG_STRING_LEN)
 
 def FuzzName(valid):
     #name
@@ -360,7 +364,7 @@ def FuzzName(valid):
         return GetRandDictString(4, RAND_SHORT_STRING_LEN)
         #GetRandString(4, RAND_SHORT_STRING_LEN)
     else:
-        return GetRandString(4, RAND_LONG_STRING_LEN)
+        return GetRandString(4, RAND_SHORT_STRING_LEN) #RAND_LONG_STRING_LEN)
 
 def FuzzPwndRun(valid):
     #name
