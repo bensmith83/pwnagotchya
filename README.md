@@ -1,5 +1,8 @@
 # pwnagotchya
 Simple tool for fuzzing the pwnagotchi "friend" protocol. Is your [pwnagotchi](https://github.com/evilsocket/pwnagotchi/) lonely? Do you want to send weird faces? Have more friends than anyone? Find bugs in the friend protocol?
+* PLEASE don't send this data upstream to the pwngrid, only use it for testing :-)
+** Set grid : enabled: and report: to false.
+** See: https://pwnagotchi.ai/configuration/#set-your-pwngrid-preferences
 
 ![It's Alive!](testfriend.png)
 
