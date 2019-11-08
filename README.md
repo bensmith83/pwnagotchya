@@ -6,6 +6,9 @@ Simple tool for fuzzing the pwnagotchi "friend" protocol
 ## Usage
 * -i to specify interface in monitor mode
 * -t to use a test file hardcoded to testfriend.json
+* -d to get some debug info on screen
+
+`sudo python3 pwnagotchya.py -i wlan1 -d -t`
 
 ## Requirements
 Scapy. Python3.
