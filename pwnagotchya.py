@@ -12,9 +12,12 @@ def main():
     parser.add_argument("-i", "--iface", dest="iface", help="monitor mode wifi interface to broadcast on", default="en0")
     parser.add_argument("-t", "--test", dest="test", help="send test friend from testfriend.json", action='store_true')
     parser.add_argument("-d", "--debug", dest="debug", help="de bugz are everywhere!", action='store_true')
+    parser.add_argument("-f", "--fuzz", dest="fuzz", help="tests should not use valid data. WARNING: currently produces waaaay too long data and will error out.", action='store_true', default=False)
     args = parser.parse_args()
     conf.iface = args.iface
     debug = args.debug
+    fuzz = args.fuzz
+    valid = not fuzz
 
     data_arr = []
 
@@ -43,7 +46,7 @@ def main():
             if data_arr:
                 data_arr.clear()
 
-            data = FuzzPwnFriend(GLOBAL_VALID)
+            data = FuzzPwnFriend(valid)
             sendLength = len(data)
 
             # break data into chunks each field can handle
@@ -57,42 +60,39 @@ def main():
                 print_data_sizes(data_arr)
             SendFriend(data_arr)
 
-#TODO: move globals somewhere configurable
-GLOBAL_VALID=True
-
 def FuzzPwnFriend(valid):
     policy = {}
-    policy.update({"advertise": FuzzAdvertise(GLOBAL_VALID)})
-    policy.update({"ap_ttl": FuzzApTtl(GLOBAL_VALID)})
-    policy.update({"associate": FuzzAssociate(GLOBAL_VALID)})
-    policy.update({"bond_encounters_factor": FuzzBondEncountersFactor(GLOBAL_VALID)})
-    policy.update({"bored_num_epochs": FuzzBoredNumEpochs(GLOBAL_VALID)})
-    policy.update({"channels": FuzzChannels(GLOBAL_VALID)})
-    policy.update({"deauth": FuzzDeauth(GLOBAL_VALID)})
-    policy.update({"excited_num_epochs": FuzzExcitedNumEpochs(GLOBAL_VALID)})
-    policy.update({"hop_recon_time": FuzzHopReconTime(GLOBAL_VALID)})
-    policy.update({"max_inactive_scale": FuzzMaxInactiveScale(GLOBAL_VALID)})
-    policy.update({"max_interactions": FuzzMaxInteractions(GLOBAL_VALID)})
-    policy.update({"max_misses_for_recon": FuzzMaxMissesForRecon(GLOBAL_VALID)})
-    policy.update({"min_recon_time": FuzzMinReconTime(GLOBAL_VALID)})
-    policy.update({"min_rssi": FuzzMinReconTime(GLOBAL_VALID)})
-    policy.update({"recon_inactive_multiplier": FuzzReconInactiveMultiplier(GLOBAL_VALID)})
-    policy.update({"recon_time": FuzzReconTime(GLOBAL_VALID)})
-    policy.update({"sad_num_epochs": FuzzSadNumEpochs(GLOBAL_VALID)})
-    policy.update({"sta_ttl": FuzzStaTtl(GLOBAL_VALID)})
+    policy.update({"advertise": FuzzAdvertise(valid)})
+    policy.update({"ap_ttl": FuzzApTtl(valid)})
+    policy.update({"associate": FuzzAssociate(valid)})
+    policy.update({"bond_encounters_factor": FuzzBondEncountersFactor(valid)})
+    policy.update({"bored_num_epochs": FuzzBoredNumEpochs(valid)})
+    policy.update({"channels": FuzzChannels(valid)})
+    policy.update({"deauth": FuzzDeauth(valid)})
+    policy.update({"excited_num_epochs": FuzzExcitedNumEpochs(valid)})
+    policy.update({"hop_recon_time": FuzzHopReconTime(valid)})
+    policy.update({"max_inactive_scale": FuzzMaxInactiveScale(valid)})
+    policy.update({"max_interactions": FuzzMaxInteractions(valid)})
+    policy.update({"max_misses_for_recon": FuzzMaxMissesForRecon(valid)})
+    policy.update({"min_recon_time": FuzzMinReconTime(valid)})
+    policy.update({"min_rssi": FuzzMinReconTime(valid)})
+    policy.update({"recon_inactive_multiplier": FuzzReconInactiveMultiplier(valid)})
+    policy.update({"recon_time": FuzzReconTime(valid)})
+    policy.update({"sad_num_epochs": FuzzSadNumEpochs(valid)})
+    policy.update({"sta_ttl": FuzzStaTtl(valid)})
     friend_req = {}
-    friend_req.update({"epoch": FuzzEpoch(GLOBAL_VALID)})
-    friend_req.update({"face":FuzzFace(GLOBAL_VALID)})
-    friend_req.update({"grid_version":FuzzGridVersion(GLOBAL_VALID)})
-    friend_req.update({"identity":FuzzIdentity(GLOBAL_VALID)})
-    friend_req.update({"name":FuzzName(GLOBAL_VALID)})
+    friend_req.update({"epoch": FuzzEpoch(valid)})
+    friend_req.update({"face":FuzzFace(valid)})
+    friend_req.update({"grid_version":FuzzGridVersion(valid)})
+    friend_req.update({"identity":FuzzIdentity(valid)})
+    friend_req.update({"name":FuzzName(valid)})
     friend_req.update({"policy":policy})
-    friend_req.update({"pwnd_run":FuzzPwndRun(GLOBAL_VALID)})
-    friend_req.update({"pwnd_tot":FuzzPwndTot(GLOBAL_VALID)})
-    friend_req.update({"session_id":FuzzSessionId(GLOBAL_VALID)})
-    friend_req.update({"timestamp":FuzzTimestamp(GLOBAL_VALID)})
-    friend_req.update({"uptime":FuzzUptime(GLOBAL_VALID)})
-    friend_req.update({"version":FuzzVersion(GLOBAL_VALID)})
+    friend_req.update({"pwnd_run":FuzzPwndRun(valid)})
+    friend_req.update({"pwnd_tot":FuzzPwndTot(valid)})
+    friend_req.update({"session_id":FuzzSessionId(valid)})
+    friend_req.update({"timestamp":FuzzTimestamp(valid)})
+    friend_req.update({"uptime":FuzzUptime(valid)})
+    friend_req.update({"version":FuzzVersion(valid)})
     return json.dumps(friend_req)
 
 #    IDWhisperPayload      layers.Dot11InformationElementID = 222
@@ -400,7 +400,7 @@ def FuzzTimestamp(valid):
     if valid:
         return GetTimestamp(valid=True)
     else:
-        return GetTimestamp(valid=false)
+        return GetTimestamp(valid=False)
 
 
 def FuzzUptime(valid):
