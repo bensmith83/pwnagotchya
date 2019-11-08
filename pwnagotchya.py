@@ -11,18 +11,20 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-i", "--iface", dest="iface", help="monitor mode wifi interface to broadcast on", default="en0")
     parser.add_argument("-t", "--test", dest="test", help="send test friend from testfriend.json", action='store_true')
+    parser.add_argument("-d", "--debug", dest="debug", help="de bugz are everywhere!", action='store_true')
     args = parser.parse_args()
     conf.iface = args.iface
+    debug = args.debug
 
     data_arr = []
 
     if args.test:
         path = './testfriend.json'
         with open(path) as json_file:
-            data = json.load(json_file)
+            data = json.dumps(json.load(json_file))
             sendLength = len(data)
 
-            # break data into chunks each packet can handle
+            # break data into chunks each field can handle
             if sendLength > TAG_LEN_MAX:
                 chop = ChopData(data, TAG_LEN_MAX)
                 for piece in chop:
@@ -30,23 +32,29 @@ def main():
             else:
                 data_arr.append(data)
             while 1:
+                if debug:
+                    print_data_sizes(data_arr)
                 SendFriend(data_arr)
 
     else:
         while 1:
             time.sleep(1) #send one per second?
 
+            if data_arr:
+                data_arr.clear()
+
             data = FuzzPwnFriend(GLOBAL_VALID)
             sendLength = len(data)
 
-            # break data into chunks each packet can handle
-
+            # break data into chunks each field can handle
             if sendLength > TAG_LEN_MAX:
                 chop = ChopData(data, TAG_LEN_MAX)
                 for piece in chop:
                     data_arr.append(piece)
             else:
                 data_arr.append(data)
+            if debug:
+                print_data_sizes(data_arr)
             SendFriend(data_arr)
 
 #TODO: move globals somewhere configurable
@@ -108,6 +116,10 @@ def ChopData(data, size):
     # chops a string into an array of size sized blocks
     return [data[i:i+size] for i in range(0, len(data), size)]
 
+def print_data_sizes(data_arr):
+    print("[*] data_arr size: %s" % len(data_arr))
+    for i in data_arr:
+        print("    [*] data size: %s" % len(i))
 
 #TODO: move helper functions to a library
 
