@@ -441,7 +441,33 @@ def GetRandChannelSet(valid=True):
 
 def GetRandFace():
     #TODO: get list of valid faces
-    return "( â_â)"
+    LOOK_R = '( ⚆_⚆)'
+    LOOK_L = '(☉_☉ )'
+    LOOK_R_HAPPY = '( ◕‿◕)'
+    LOOK_L_HAPPY = '(◕‿◕ )'
+    SLEEP = '(⇀‿‿↼)'
+    SLEEP2 = '(≖‿‿≖)'
+    AWAKE = '(◕‿‿◕)'
+    BORED = '(-__-)'
+    INTENSE = '(°▃▃°)'
+    COOL = '(⌐■_■)'
+    HAPPY = '(•‿‿•)'
+    GRATEFUL = '(^‿‿^)'
+    EXCITED = '(ᵔ◡◡ᵔ)'
+    MOTIVATED = '(☼‿‿☼)'
+    DEMOTIVATED = '(≖__≖)'
+    SMART = '(✜‿‿✜)'
+    LONELY = '(ب__ب)'
+    SAD = '(╥☁╥ )'
+    ANGRY = "(-_-')"
+    FRIEND = '(♥‿‿♥)'
+    BROKEN = '(☓‿‿☓)'
+    DEBUG = '(#__#)'
+    OTHER1 = '[ O.o]'
+    OTHER2 = '[o.O ]'
+    #TODO: load these from faces.py
+    faces = [LOOK_R, LOOK_L, LOOK_R_HAPPY, LOOK_L_HAPPY, SLEEP, SLEEP2, AWAKE, BORED, INTENSE, COOL, HAPPY, GRATEFUL, EXCITED, MOTIVATED, DEMOTIVATED, SMART, LONELY, SAD, ANGRY, FRIEND, BROKEN, DEBUG, OTHER1, OTHER2]
+    return random.choice(faces)
 
 def GetRandString(min, max):
     #TODO: generate random strings better
