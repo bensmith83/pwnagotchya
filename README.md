@@ -5,9 +5,9 @@ Simple tool for fuzzing the pwnagotchi "friend" protocol. Is your [pwnagotchi](h
 
 ## Usage
 * -i to specify interface in monitor mode
-* -t to use a test file hardcoded to testfriend.json
+* -t to use a test file hardcoded to testfriend.json (not compatible with -f, currently -t takes precedence)
 * -d to get some debug info on screen
-* -f to fuzz the data - Currently DOES NOT WORK well.
+* -f to fuzz the data - Currently DOES NOT WORK well. (not compatible with -t)
 
 `sudo python3 pwnagotchya.py -i wlan1 -d -t`
 
