@@ -30,3 +30,4 @@ Lots of todos in the code. I'll forget to list them here at some point.
 
 ## Notes
 - friend count seems to reset after 1000?
+- friend name line gets really screwed up on e-ink display
